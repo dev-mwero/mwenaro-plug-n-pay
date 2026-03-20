@@ -10,7 +10,8 @@ import {
   Settings, 
   LogOut,
   ChevronRight,
-  Smartphone
+  Smartphone,
+  X
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -22,13 +23,23 @@ const sidebarLinks = [
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
-export function DashboardSidebar() {
+interface DashboardSidebarProps {
+  className?: string;
+  onClose?: () => void;
+}
+
+export function DashboardSidebar({ className, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-col h-full bg-white border-r border-gray-200 w-64 fixed left-0 top-0">
-      <div className="p-6">
+    <div className={cn("flex flex-col h-full bg-white", className)}>
+      <div className="p-6 flex items-center justify-between">
         <h1 className="text-xl font-bold text-emerald-600 tracking-tight">PlugPay</h1>
+        {onClose && (
+          <button onClick={onClose} className="md:hidden p-1 text-gray-500 hover:bg-gray-100 rounded">
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       <nav className="flex-1 px-4 space-y-1">
@@ -38,6 +49,7 @@ export function DashboardSidebar() {
             <Link
               key={link.href}
               href={link.href}
+              onClick={() => onClose?.()}
               className={cn(
                 "flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors group",
                 isActive 

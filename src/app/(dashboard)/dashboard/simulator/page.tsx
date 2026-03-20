@@ -73,7 +73,7 @@ export default function SimulatorPage() {
                   transactionDesc: "Test STK"
                 });
               }}>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Phone Number</Label>
                     <Input name="phone" placeholder="2547XXXXXXXX" defaultValue="254712345678" />
@@ -108,7 +108,7 @@ export default function SimulatorPage() {
                   b2cRemarks: "Simulator Test"
                 });
               }}>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Recipient Phone</Label>
                     <Input name="phone" placeholder="2547XXXXXXXX" defaultValue="254711223344" />
@@ -141,7 +141,7 @@ export default function SimulatorPage() {
                   shortCode: "600000",
                 });
               }}>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Shortcode</Label>
                     <Input name="shortcode" defaultValue="600000" disabled />

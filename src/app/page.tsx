@@ -19,12 +19,12 @@ export default function LandingPage() {
           <Link className="hover:text-emerald-600 transition-colors" href="#pricing">Pricing</Link>
           <Link className="hover:text-emerald-600 transition-colors" href="/dashboard">Dashboard</Link>
         </nav>
-        <div className="flex items-center gap-4">
-          <Link href="/login">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <Link href="/login" className="hidden sm:block">
             <Button variant="ghost" className="text-sm font-medium">Log in</Button>
           </Link>
           <Link href="/login">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-200/50 px-6 font-semibold">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-200/50 px-4 sm:px-6 font-semibold text-sm">
               Get Started
             </Button>
           </Link>
@@ -105,7 +105,7 @@ Content-Type: application/json
               <h2 className="text-sm font-bold text-emerald-600 uppercase tracking-widest mb-4">Why PlugPay?</h2>
               <p className="text-3xl lg:text-4xl font-bold text-slate-900">Everything you need to scale payments in East Africa</p>
             </div>
-            <div className="grid gap-12 md:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 { title: "Developer First", icon: Code, desc: "Clean SDKs, comprehensive documentation, and a robust sandbox environment." },
                 { title: "Real-time Analytics", icon: Zap, desc: "Monitor every transaction as it happens with instant webhook notifications." },
@@ -146,7 +146,7 @@ Content-Type: application/json
       </main>
 
       <footer className="bg-slate-900 text-slate-400 py-16 px-6 border-t border-slate-800">
-        <div className="container mx-auto grid gap-12 md:grid-cols-4">
+        <div className="container mx-auto grid gap-12 grid-cols-2 lg:grid-cols-4">
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-white">
               <Zap className="h-6 w-6 text-emerald-500" />

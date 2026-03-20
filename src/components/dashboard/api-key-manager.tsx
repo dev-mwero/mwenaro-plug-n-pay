@@ -122,22 +122,22 @@ export function ApiKeyManager() {
           <div className="grid gap-3">
             {keys.map((key) => (
               <Card key={key._id} className="shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+                <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
                     <div className={cn(
-                      "h-10 w-10 rounded-full flex items-center justify-center",
+                      "h-10 w-10 shrink-0 rounded-full flex items-center justify-center",
                       key.isLive ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-blue-600"
                     )}>
                       <Key className="h-5 w-5" />
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{key.name}</p>
-                      <p className="text-xs font-mono text-gray-500 uppercase">{key.prefix}••••••••</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-gray-900 truncate">{key.name}</p>
+                      <p className="text-[10px] sm:text-xs font-mono text-gray-400 uppercase break-all">{key.prefix}••••••••</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="text-right mr-4 hidden md:block">
-                      <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Status</p>
+                  <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-0 border-gray-50">
+                    <div className="text-left sm:text-right mr-0 sm:mr-4">
+                      <p className="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold tracking-wider">Status</p>
                       <p className="text-xs text-emerald-600 font-medium">Active</p>
                     </div>
                     <Button variant="ghost" size="icon" className="text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(key._id)}>
