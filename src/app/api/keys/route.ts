@@ -4,12 +4,22 @@ import ApiKey from "@/models/ApiKey";
 import { generateApiKey } from "@/lib/utils/api-key";
 import { NextResponse } from "next/server";
 
+import mongoose from "mongoose";
+
 export const GET = auth(async (req) => {
-  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!req.auth || !req.auth.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const userId = req.auth.user.id;
+
+  // Defensive check for legacy "dev-user-id" or non-ObjectId strings
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    console.warn(`[API/KEYS] Invalid ObjectId in session: ${userId}. User may need to re-login.`);
+    return NextResponse.json([]); // Return empty list instead of crashing
+  }
 
   try {
     await dbConnect();
-    const keys = await ApiKey.find({ userId: req.auth.user?.id }).sort({ createdAt: -1 });
+    const keys = await ApiKey.find({ userId }).sort({ createdAt: -1 });
     return NextResponse.json(keys);
   } catch (error: any) {
     console.error("[API/KEYS] GET Error:", error);
@@ -19,13 +29,20 @@ export const GET = auth(async (req) => {
 
 export const POST = auth(async (req) => {
   console.log("[API/KEYS] Received key generation request");
-  if (!req.auth) {
+  if (!req.auth || !req.auth.user?.id) {
     console.log("[API/KEYS] Unauthorized: No session found");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const userId = req.auth.user.id;
+  
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return NextResponse.json({ 
+      error: "Your session has expired or is invalid. Please sign out and sign in again." 
+    }, { status: 401 });
+  }
+
   const userEmail = req.auth.user?.email;
-  const userId = req.auth.user?.id;
   console.log(`[API/KEYS] Authenticated User: ${userEmail} (${userId})`);
 
   try {
