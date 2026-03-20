@@ -21,10 +21,17 @@ export function ApiKeyManager() {
   }, []);
 
   const fetchKeys = async () => {
-    const res = await fetch("/api/keys");
-    const data = await res.json();
-    setKeys(data);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/keys");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to fetch keys");
+      setKeys(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Fetch Keys Error:", err);
+      setKeys([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCreate = async () => {

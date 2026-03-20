@@ -7,10 +7,14 @@ import { NextResponse } from "next/server";
 export const GET = auth(async (req) => {
   if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  await dbConnect();
-  const keys = await ApiKey.find({ userId: req.auth.user?.id }).sort({ createdAt: -1 });
-
-  return NextResponse.json(keys);
+  try {
+    await dbConnect();
+    const keys = await ApiKey.find({ userId: req.auth.user?.id }).sort({ createdAt: -1 });
+    return NextResponse.json(keys);
+  } catch (error: any) {
+    console.error("[API/KEYS] GET Error:", error);
+    return NextResponse.json({ error: error.message || "Failed to fetch keys" }, { status: 500 });
+  }
 });
 
 export const POST = auth(async (req) => {

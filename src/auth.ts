@@ -24,7 +24,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           credentials.otp === "123456"
         ) {
           return {
-            id: "dev-user-id",
+            id: "507f1f77bcf86cd799439011", // Valid mock ObjectId
             email: "test@example.com",
             name: "Dev Test User",
           };
