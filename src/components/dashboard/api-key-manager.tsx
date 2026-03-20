@@ -12,6 +12,7 @@ export function ApiKeyManager() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
+  const [isLiveKey, setIsLiveKey] = useState(false);
   const [revealedKeyId, setRevealedKeyId] = useState<string | null>(null);
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
 
@@ -32,7 +33,7 @@ export function ApiKeyManager() {
     const res = await fetch("/api/keys", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newKeyName, isLive: false }),
+      body: JSON.stringify({ name: newKeyName, isLive: isLiveKey }),
     });
     const data = await res.json();
     setNewlyCreatedKey(data.rawKey);
@@ -60,16 +61,28 @@ export function ApiKeyManager() {
             Use this key to authenticate your requests to the PlugPay API.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex gap-4">
-          <Input 
-            placeholder="e.g. My Website Production" 
-            value={newKeyName}
-            onChange={(e) => setNewKeyName(e.target.value)}
-          />
-          <Button onClick={handleCreate} disabled={creating || !newKeyName} className="bg-emerald-600 hover:bg-emerald-700">
-            {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            <Plus className="mr-2 h-4 w-4" /> Generate Key
-          </Button>
+        <CardContent className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <Input 
+              placeholder="e.g. My Website Production" 
+              value={newKeyName}
+              onChange={(e) => setNewKeyName(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-4">
+            <select 
+              className="flex h-10 w-[140px] items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+              value={isLiveKey ? "true" : "false"}
+              onChange={(e) => setIsLiveKey(e.target.value === "true")}
+            >
+              <option value="false">Sandbox</option>
+              <option value="true">Live (Prod)</option>
+            </select>
+            <Button onClick={handleCreate} disabled={creating || !newKeyName} className="bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap">
+              {creating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+              Generate
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
