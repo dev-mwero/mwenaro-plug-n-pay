@@ -2,11 +2,14 @@ import { createClient, Client } from "@libsql/client";
 import path from "path";
 import fs from "fs";
 
-const DB_PATH = path.join(process.cwd(), "data/logs.db");
+const isServerless = process.env.VERCEL === "1" || process.env.NODE_ENV === "production";
+const DB_PATH = isServerless
+  ? path.join("/tmp", "logs.db")
+  : path.join(process.cwd(), "data/logs.db");
 
-// Ensure the data directory exists
+// Ensure the data directory exists only if we aren't in a serverless /tmp folder
 const dbDir = path.dirname(DB_PATH);
-if (!fs.existsSync(dbDir)) {
+if (!isServerless && !fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
 
