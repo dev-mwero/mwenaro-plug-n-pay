@@ -53,9 +53,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     ...authConfig.callbacks,
+    async jwt({ token, user, account }) {
+      if (user) {
+        // For Google, we need to map to our DB's ObjectId
+        if (account?.provider === "google") {
+          await dbConnect();
+          const dbUser = await User.findOne({ email: user.email });
+          if (dbUser) {
+            token.sub = dbUser._id.toString();
+          }
+        } else {
+          // For Credentials/OTP, the 'id' returned is already the DB _id (or our valid mock)
+          token.sub = user.id;
+        }
+      }
+      return token;
+    },
     async session({ session, token }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub;
+      if (token?.sub && session.user) {
+        let userId = token.sub;
+
+        // EMERGENCY SANITIZATION: If somehow the old legacy ID is still in the token,
+        // we force it to the new valid mock ID so that it doesn't crash the database.
+        if (userId === "dev-user-id") {
+          userId = "507f1f77bcf86cd799439011";
+        }
+
+        session.user.id = userId;
       }
       return session;
     },
