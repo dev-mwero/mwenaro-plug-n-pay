@@ -27,12 +27,16 @@ export async function POST(req: Request) {
         if (!phoneNumber || !amount || !accountReference) {
           return NextResponse.json({ error: "Missing required fields for STK Push" }, { status: 400 });
         }
+        const baseUrl = process.env.NEXTAUTH_URL?.includes("localhost") 
+          ? "https://test-callback.mwenaro.com" 
+          : process.env.NEXTAUTH_URL;
+          
         mpesaResponse = await mpesa.stkPush({
           phoneNumber,
           amount,
           accountReference,
           transactionDesc: transactionDesc || "PlugPay Transaction",
-          callbackUrl: `${process.env.NEXTAUTH_URL}/api/v1/callbacks/stk`,
+          callbackUrl: `${baseUrl}/api/v1/callbacks/stk`,
         });
         transactionType = "STK_PUSH";
         break;
@@ -66,7 +70,7 @@ export async function POST(req: Request) {
 
     // 3. Log transaction in SQLite
     const transactionId = crypto.randomUUID();
-    logTransaction({
+    await logTransaction({
       id: transactionId,
       userId: apiKey.userId.toString(),
       apiKeyId: apiKey._id.toString(),

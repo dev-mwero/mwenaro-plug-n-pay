@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, Eye, EyeOff, Loader2, Plus, Trash2 } from "lucide-react";
+import { Copy, Eye, EyeOff, Key, Loader2, Plus, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function ApiKeyManager() {
   const [keys, setKeys] = useState<any[]>([]);

@@ -7,48 +7,58 @@ export async function getTransactionLogs(limit: number = 50, offset: number = 0)
   const session = await auth();
   if (!session) throw new Error("Unauthorized");
 
-  const db = getSqliteDb();
+  const db = await getSqliteDb();
   
-  const logs = db.prepare(`
-    SELECT * FROM transaction_logs 
-    WHERE userId = ? 
-    ORDER BY createdAt DESC 
-    LIMIT ? OFFSET ?
-  `).all(session.user?.id, limit, offset);
+  const result = await db.execute({
+    sql: `
+      SELECT * FROM transaction_logs 
+      WHERE userId = ? 
+      ORDER BY createdAt DESC 
+      LIMIT ? OFFSET ?
+    `,
+    args: [session.user!.id!, limit, offset]
+  });
 
-  const total = db.prepare(`
-    SELECT COUNT(*) as count FROM transaction_logs WHERE userId = ?
-  `).get(session.user?.id) as { count: number };
+  const totalResult = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM transaction_logs WHERE userId = ?`,
+    args: [session.user!.id!]
+  });
 
-  return { logs, total: total.count };
+  return { logs: result.rows, total: totalResult.rows[0].count };
 }
 
 export async function getDashboardStats() {
   const session = await auth();
   if (!session) throw new Error("Unauthorized");
 
-  const db = getSqliteDb();
+  const db = await getSqliteDb();
   
-  const stats = db.prepare(`
-    SELECT 
-      SUM(CASE WHEN status = 'SUCCESS' THEN amount ELSE 0 END) as totalVolume,
-      COUNT(*) as totalTransactions,
-      SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) as successCount,
-      SUM(CASE WHEN status = 'FAILED' THEN 1 ELSE 0 END) as failureCount
-    FROM transaction_logs 
-    WHERE userId = ?
-  `).get(session.user?.id) as any;
+  const statsResult = await db.execute({
+    sql: `
+      SELECT 
+        SUM(CASE WHEN status = 'SUCCESS' THEN amount ELSE 0 END) as totalVolume,
+        COUNT(*) as totalTransactions,
+        SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) as successCount,
+        SUM(CASE WHEN status = 'FAILED' THEN 1 ELSE 0 END) as failureCount
+      FROM transaction_logs 
+      WHERE userId = ?
+    `,
+    args: [session.user!.id!]
+  });
 
   // Get daily volume for the last 7 days
-  const dailyVolume = db.prepare(`
-    SELECT 
-      strftime('%Y-%m-%d', createdAt) as date,
-      SUM(amount) as volume
-    FROM transaction_logs 
-    WHERE userId = ? AND createdAt >= date('now', '-7 days')
-    GROUP BY date
-    ORDER BY date ASC
-  `).all(session.user?.id) as any[];
+  const dailyResult = await db.execute({
+    sql: `
+      SELECT 
+        strftime('%Y-%m-%d', createdAt) as date,
+        SUM(amount) as volume
+      FROM transaction_logs 
+      WHERE userId = ? AND createdAt >= date('now', '-7 days')
+      GROUP BY date
+      ORDER BY date ASC
+    `,
+    args: [session.user!.id!]
+  });
 
-  return { ...stats, dailyVolume };
+  return { ...statsResult.rows[0], dailyVolume: dailyResult.rows };
 }

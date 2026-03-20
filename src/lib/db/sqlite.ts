@@ -1,8 +1,8 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import fs from 'fs';
+import { createClient, Client } from "@libsql/client";
+import path from "path";
+import fs from "fs";
 
-const DB_PATH = path.join(process.cwd(), 'data/logs.db');
+const DB_PATH = path.join(process.cwd(), "data/logs.db");
 
 // Ensure the data directory exists
 const dbDir = path.dirname(DB_PATH);
@@ -10,14 +10,18 @@ if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
 
-let db: Database.Database;
+let db: Client | null = null;
+let isInitialized = false;
 
-export function getSqliteDb() {
+export async function getSqliteDb(): Promise<Client> {
   if (!db) {
-    db = new Database(DB_PATH);
-    
-    // Initialize the logs table if it doesn't exist
-    db.exec(`
+    db = createClient({
+      url: `file:${DB_PATH}`,
+    });
+  }
+
+  if (!isInitialized) {
+    await db.execute(`
       CREATE TABLE IF NOT EXISTS transaction_logs (
         id TEXT PRIMARY KEY,
         userId TEXT NOT NULL,
@@ -31,16 +35,17 @@ export function getSqliteDb() {
         errorMessage TEXT,
         rawPayload TEXT,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
-      
-      CREATE INDEX IF NOT EXISTS idx_userId ON transaction_logs(userId);
-      CREATE INDEX IF NOT EXISTS idx_createdAt ON transaction_logs(createdAt);
+      )
     `);
+    
+    await db.execute(`CREATE INDEX IF NOT EXISTS idx_userId ON transaction_logs(userId)`);
+    await db.execute(`CREATE INDEX IF NOT EXISTS idx_createdAt ON transaction_logs(createdAt)`);
+    isInitialized = true;
   }
   return db;
 }
 
-export function logTransaction(data: {
+export async function logTransaction(data: {
   id: string;
   userId: string;
   apiKeyId: string;
@@ -50,25 +55,29 @@ export function logTransaction(data: {
   phoneNumber?: string;
   mpesaReceiptNumber?: string;
   errorMessage?: string;
-  rawPayload?: string;
+  rawPayload?: any;
 }) {
-  const sqlite = getSqliteDb();
-  const stmt = sqlite.prepare(`
-    INSERT INTO transaction_logs (
-      id, userId, apiKeyId, type, status, amount, phoneNumber, mpesaReceiptNumber, errorMessage, rawPayload
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-  
-  return stmt.run(
-    data.id,
-    data.userId,
-    data.apiKeyId,
-    data.type,
-    data.status,
-    data.amount,
-    data.phoneNumber || null,
-    data.mpesaReceiptNumber || null,
-    data.errorMessage || null,
-    data.rawPayload ? JSON.stringify(data.rawPayload) : null
-  );
+  try {
+    const sqlite = await getSqliteDb();
+    return await sqlite.execute({
+      sql: `INSERT INTO transaction_logs (
+        id, userId, apiKeyId, type, status, amount, phoneNumber, mpesaReceiptNumber, errorMessage, rawPayload
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        data.id,
+        data.userId,
+        data.apiKeyId,
+        data.type,
+        data.status,
+        data.amount,
+        data.phoneNumber || null,
+        data.mpesaReceiptNumber || null,
+        data.errorMessage || null,
+        data.rawPayload ? JSON.stringify(data.rawPayload) : null
+      ]
+    });
+  } catch (error) {
+    console.error("[SQLITE] Failed to log transaction. It may be logged only in MongoDB.", error);
+    return null;
+  }
 }

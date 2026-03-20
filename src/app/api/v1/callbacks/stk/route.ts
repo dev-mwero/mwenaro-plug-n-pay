@@ -17,25 +17,27 @@ export async function POST(req: Request) {
     const { checkoutRequestId, success, resultDesc, mpesaReceiptNumber } = result;
 
     // 1. Find and Update the transaction in SQLite
-    const db = getSqliteDb();
-    const stmt = db.prepare(`
-      UPDATE transaction_logs 
-      SET status = ?, mpesaReceiptNumber = ?, errorMessage = ?
-      WHERE id IN (
-        SELECT id FROM transaction_logs 
-        WHERE rawPayload LIKE ? 
-        ORDER BY createdAt DESC LIMIT 1
-      )
-    `);
-
+    const db = await getSqliteDb();
+    
     // Note: In a real scenario, we'd index by CheckoutRequestID directly in SQLite
     // Here we search for the CheckoutRequestID within the rawPayload string as a simple fallback
-    stmt.run(
-      success ? "SUCCESS" : "FAILED",
-      mpesaReceiptNumber || null,
-      success ? null : resultDesc,
-      `%${checkoutRequestId}%`
-    );
+    await db.execute({
+      sql: `
+        UPDATE transaction_logs 
+        SET status = ?, mpesaReceiptNumber = ?, errorMessage = ?
+        WHERE id IN (
+          SELECT id FROM transaction_logs 
+          WHERE rawPayload LIKE ? 
+          ORDER BY createdAt DESC LIMIT 1
+        )
+      `,
+      args: [
+        success ? "SUCCESS" : "FAILED",
+        mpesaReceiptNumber || null,
+        success ? null : resultDesc,
+        `%${checkoutRequestId}%`
+      ]
+    });
 
     // 2. TODO: If the user has a webhook URL configured, notify them here.
     
