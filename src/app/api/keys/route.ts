@@ -14,29 +14,50 @@ export const GET = auth(async (req) => {
 });
 
 export const POST = auth(async (req) => {
-  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  console.log("[API/KEYS] Received key generation request");
+  if (!req.auth) {
+    console.log("[API/KEYS] Unauthorized: No session found");
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  const body = await req.json();
-  const { name, isLive } = body;
+  const userEmail = req.auth.user?.email;
+  const userId = req.auth.user?.id;
+  console.log(`[API/KEYS] Authenticated User: ${userEmail} (${userId})`);
 
-  if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
+  try {
+    const body = await req.json();
+    const { name, isLive } = body;
+    console.log(`[API/KEYS] Request body: name=${name}, isLive=${isLive}`);
 
-  await dbConnect();
-  const { rawKey, hash, prefix } = generateApiKey(isLive);
+    if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
 
-  const newKey = await ApiKey.create({
-    userId: req.auth.user?.id,
-    name,
-    key: hash,
-    prefix,
-    isLive,
-  });
+    console.log("[API/KEYS] Connecting to MongoDB...");
+    await dbConnect();
+    console.log("[API/KEYS] MongoDB connected");
 
-  // Important: We return the rawKey ONLY during creation. It is never stored.
-  return NextResponse.json({
-    ...newKey.toObject(),
-    rawKey,
-  });
+    console.log("[API/KEYS] Generating key material...");
+    const { rawKey, hash, prefix } = generateApiKey(isLive);
+    console.log(`[API/KEYS] Generated key with prefix: ${prefix}`);
+
+    console.log("[API/KEYS] Creating ApiKey record in DB...");
+    const newKey = await ApiKey.create({
+      userId: userId,
+      name,
+      key: hash,
+      prefix,
+      isLive,
+    });
+    console.log(`[API/KEYS] Successfully created key: ${newKey._id}`);
+
+    // Important: We return the rawKey ONLY during creation. It is never stored.
+    return NextResponse.json({
+      ...newKey.toObject(),
+      rawKey,
+    });
+  } catch (error: any) {
+    console.error("[API/KEYS] CRITICAL ERROR:", error);
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+  }
 });
 
 export const DELETE = auth(async (req) => {

@@ -30,16 +30,29 @@ export function ApiKeyManager() {
   const handleCreate = async () => {
     if (!newKeyName) return;
     setCreating(true);
-    const res = await fetch("/api/keys", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newKeyName, isLive: isLiveKey }),
-    });
-    const data = await res.json();
-    setNewlyCreatedKey(data.rawKey);
-    setKeys([data, ...keys]);
-    setNewKeyName("");
-    setCreating(false);
+    try {
+      const res = await fetch("/api/keys", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newKeyName, isLive: isLiveKey }),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to generate API key");
+      }
+
+      setNewlyCreatedKey(data.rawKey);
+      setKeys([data, ...keys]);
+      setNewKeyName("");
+    } catch (err: any) {
+      console.error("API Key Generation Error:", err);
+      // TODO: Add toast notification for error
+      alert(err.message || "Something went wrong while generating the key");
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
