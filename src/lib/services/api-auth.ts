@@ -1,6 +1,7 @@
 import dbConnect from "@/lib/db/mongodb";
 import ApiKey from "@/models/ApiKey";
 import { validateApiKey } from "@/lib/utils/api-key";
+import { auth } from "@/auth";
 
 /**
  * Middleware-like helper to verify API keys for public endpoints
@@ -12,6 +13,20 @@ export async function verifyPublicApiKey(request: Request) {
   }
 
   const rawKey = authHeader.split(" ")[1];
+
+  // Bypass for the internal authenticated dashboard simulator
+  if (rawKey === "mpl_test_simulator_key") {
+    const session = await auth();
+    if (session?.user?.id) {
+      return {
+        _id: "simulator-key",
+        userId: session.user.id,
+        isLive: false,
+      };
+    }
+    return null;
+  }
+
   const prefix = rawKey.slice(0, 12);
 
   await dbConnect();
