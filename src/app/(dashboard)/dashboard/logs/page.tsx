@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Loader2, RefreshCw, Smartphone } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function LogsPage() {
@@ -77,14 +77,22 @@ export default function LogsPage() {
                       {format(new Date(log.createdAt), "MMM d, HH:mm:ss")}
                     </TableCell>
                     <TableCell>
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">
+                      <span className={cn(
+                        "text-[10px] font-bold px-1.5 py-0.5 rounded",
+                        log.type === "STK_PUSH" ? "bg-blue-100 text-blue-700" :
+                        log.type === "B2C" ? "bg-purple-100 text-purple-700" :
+                        log.type === "C2B" ? "bg-orange-100 text-orange-700" :
+                        "bg-gray-100 text-gray-600"
+                      )}>
                         {log.type}
                       </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
                         <span className="text-sm font-medium">{log.phoneNumber || "N/A"}</span>
-                        <span className="text-[10px] text-gray-400 uppercase tracking-tighter">API: {log.apiKeyId.slice(-6)}</span>
+                        <span className="text-[10px] text-gray-400 tracking-tighter">
+                          {log.id.slice(0, 8)}...
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell className="font-semibold text-gray-700">
@@ -92,10 +100,10 @@ export default function LogsPage() {
                     </TableCell>
                     <TableCell>
                       <span className={cn(
-                        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
-                        log.status === "SUCCESS" ? "bg-emerald-100 text-emerald-700" : 
-                        log.status === "FAILED" ? "bg-red-100 text-red-700" : 
-                        "bg-amber-100 text-amber-700 animate-pulse"
+                        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border",
+                        log.status === "SUCCESS" ? "bg-emerald-50 text-emerald-700 border-emerald-100" : 
+                        log.status === "FAILED" ? "bg-red-50 text-red-700 border-red-100" : 
+                        "bg-amber-50 text-amber-700 border-amber-100 animate-pulse"
                       )}>
                         {log.status}
                       </span>

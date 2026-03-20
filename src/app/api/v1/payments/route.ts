@@ -12,42 +12,75 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid or inactive API Key" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get("type") || "stk"; // Default to STK
     const body = await req.json();
-    const { phoneNumber, amount, accountReference, transactionDesc } = body;
 
-    // 2. Validate Body
-    if (!phoneNumber || !amount || !accountReference) {
-      return NextResponse.json({ error: "Missing required fields (phoneNumber, amount, accountReference)" }, { status: 400 });
+    const mpesa = new MpesaService(apiKey.isLive);
+    let mpesaResponse;
+    let transactionType: any = "STK_PUSH";
+
+    // 2. Route based on transaction type
+    switch (type) {
+      case "stk":
+        const { phoneNumber, amount, accountReference, transactionDesc } = body;
+        if (!phoneNumber || !amount || !accountReference) {
+          return NextResponse.json({ error: "Missing required fields for STK Push" }, { status: 400 });
+        }
+        mpesaResponse = await mpesa.stkPush({
+          phoneNumber,
+          amount,
+          accountReference,
+          transactionDesc: transactionDesc || "PlugPay Transaction",
+          callbackUrl: `${process.env.NEXTAUTH_URL}/api/v1/callbacks/stk`,
+        });
+        transactionType = "STK_PUSH";
+        break;
+
+      case "b2c":
+        const { b2cAmount, b2cReceiver, b2cRemarks } = body;
+        if (!b2cAmount || !b2cReceiver) {
+          return NextResponse.json({ error: "Missing fields for B2C" }, { status: 400 });
+        }
+        mpesaResponse = await mpesa.b2cPayment({
+          initiatorName: "PlugPayAuto",
+          amount: b2cAmount,
+          partyA: "123456", // Shortcode from config
+          partyB: b2cReceiver,
+          remarks: b2cRemarks || "B2C Payout",
+        });
+        transactionType = "B2C";
+        break;
+
+      case "c2b-register":
+        mpesaResponse = await mpesa.c2bRegisterUrl({
+          shortCode: body.shortCode,
+          confirmationUrl: `${process.env.NEXTAUTH_URL}/api/v1/callbacks/c2b/confirm`,
+          validationUrl: `${process.env.NEXTAUTH_URL}/api/v1/callbacks/c2b/validate`,
+        });
+        return NextResponse.json(mpesaResponse);
+
+      default:
+        return NextResponse.json({ error: "Unsupported transaction type" }, { status: 400 });
     }
 
-    // 3. Initiate M-Pesa Request
-    const mpesa = new MpesaService(apiKey.isLive);
-    const mpesaResponse = await mpesa.stkPush({
-      phoneNumber,
-      amount,
-      accountReference,
-      transactionDesc: transactionDesc || "PlugPay Transaction",
-      callbackUrl: `${process.env.NEXTAUTH_URL}/api/v1/callbacks/stk`,
-    });
-
-    // 4. Log initial PENDING transaction in SQLite
+    // 3. Log transaction in SQLite
     const transactionId = crypto.randomUUID();
     logTransaction({
       id: transactionId,
       userId: apiKey.userId.toString(),
       apiKeyId: apiKey._id.toString(),
-      type: "STK_PUSH",
+      type: transactionType,
       status: "PENDING",
-      amount: parseFloat(amount),
-      phoneNumber,
-      rawPayload: mpesaResponse,
+      amount: parseFloat(body.amount || body.b2cAmount || 0),
+      phoneNumber: body.phoneNumber || body.b2cReceiver || "N/A",
+      rawPayload: mpesaResponse as any,
     });
 
     return NextResponse.json({
       success: true,
       transactionId,
-      message: mpesaResponse.CustomerMessage,
-      checkoutRequestId: mpesaResponse.CheckoutRequestID,
+      ...mpesaResponse,
     });
 
   } catch (error: any) {

@@ -17,6 +17,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.otp) return null;
 
+        // Development bypass for verification
+        if (
+          process.env.NODE_ENV === "development" && 
+          credentials.email === "test@example.com" && 
+          credentials.otp === "123456"
+        ) {
+          return {
+            id: "dev-user-id",
+            email: "test@example.com",
+            name: "Dev Test User",
+          };
+        }
+
         await dbConnect();
         const user = await User.findOne({ email: credentials.email });
 

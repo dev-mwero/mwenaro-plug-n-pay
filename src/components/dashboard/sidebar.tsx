@@ -8,17 +8,17 @@ import {
   Key, 
   History, 
   Settings, 
-  CreditCard,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Smartphone
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 const sidebarLinks = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+  { name: "API Simulator", href: "/dashboard/simulator", icon: Smartphone },
   { name: "API Keys", href: "/dashboard/keys", icon: Key },
-  { name: "Payments", href: "/dashboard/payments", icon: CreditCard },
-  { name: "Logs", href: "/dashboard/logs", icon: History },
+  { name: "Transactions", href: "/dashboard/logs", icon: History },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
