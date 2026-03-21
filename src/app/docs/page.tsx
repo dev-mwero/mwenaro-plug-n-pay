@@ -91,7 +91,7 @@ Content-Type: application/json
                     <CardContent className="p-6">
                       <pre className="text-sm text-blue-400 font-mono overflow-x-auto">
                         <code>
-{`curl -X POST "https://api.mwenaro.com/v1/payments?type=stk" \\
+{`curl -X POST "https://plugnpay.mwenaro.com/api/v1/payments?type=stk" \\
   -H "Authorization: Bearer mpl_test_YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -115,7 +115,7 @@ Content-Type: application/json
 
 async function initiateSTK() {
   try {
-    const response = await axios.post('https://api.mwenaro.com/v1/payments?type=stk', {
+    const response = await axios.post('https://plugnpay.mwenaro.com/api/v1/payments?type=stk', {
       phoneNumber: "254712345678",
       amount: 1050,
       accountReference: "INV-2026",
@@ -150,7 +150,7 @@ async function initiateSTK() {
 }
 
 export async function lipaNaMpesa(payload: StkPayload) {
-  const res = await fetch("https://api.mwenaro.com/v1/payments?type=stk", {
+  const res = await fetch("https://plugnpay.mwenaro.com/api/v1/payments?type=stk", {
     method: "POST",
     headers: {
       "Authorization": \`Bearer \${process.env.MWENARO_API_KEY}\`,
