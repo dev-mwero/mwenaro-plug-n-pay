@@ -14,9 +14,8 @@ export default function LandingPage() {
           <span className="text-xl font-bold tracking-tight text-slate-900">PlugPay</span>
         </Link>
         <nav className="hidden md:flex gap-8 text-sm font-medium text-slate-600">
-          <Link className="hover:text-emerald-600 transition-colors" href="#features">Features</Link>
-          <Link className="hover:text-emerald-600 transition-colors" href="#developers">Developers</Link>
-          <Link className="hover:text-emerald-600 transition-colors" href="#pricing">Pricing</Link>
+          <Link className="hover:text-emerald-600 transition-colors" href="/#features">Features</Link>
+          <Link className="hover:text-emerald-600 transition-colors" href="/docs">Documentation</Link>
           <Link className="hover:text-emerald-600 transition-colors" href="/dashboard">Dashboard</Link>
         </nav>
         <div className="flex items-center gap-2 sm:gap-4">

@@ -11,15 +11,19 @@ import {
   LogOut,
   ChevronRight,
   Smartphone,
-  X
+  X,
+  CheckCircle2,
+  AlertTriangle
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 const sidebarLinks = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Reconciliation", href: "/dashboard/reconciliation", icon: CheckCircle2 },
+  { name: "Transactions", href: "/dashboard/logs", icon: History },
+  { name: "Errors & Retries", href: "/dashboard/errors", icon: AlertTriangle },
   { name: "API Simulator", href: "/dashboard/simulator", icon: Smartphone },
   { name: "API Keys", href: "/dashboard/keys", icon: Key },
-  { name: "Transactions", href: "/dashboard/logs", icon: History },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
