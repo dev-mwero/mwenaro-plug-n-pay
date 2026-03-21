@@ -1,10 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Code2, BookOpen, Key, Webhook, Terminal } from "lucide-react";
+import { NavBar } from "@/components/layout/navbar";
 
 export default function DocsPage() {
   return (
     <div className="min-h-screen bg-gray-50/50">
+      <NavBar />
       <div className="max-w-6xl mx-auto p-6 lg:p-12 space-y-12">
         
         {/* Header */}
