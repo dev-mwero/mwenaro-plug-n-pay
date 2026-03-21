@@ -45,7 +45,7 @@ export async function requestOTP(email: string) {
         try {
             await Promise.race([
                 transporter.sendMail({
-                    from: `"Mwenaro PlugPay" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+                    from: process.env.SMTP_FROM || `"Mwenaro PlugPay" <${process.env.SMTP_USER}>`,
                     to: email,
                     subject: `Your Verification Code: ${otp}`,
                     text: `Your Mwenaro PlugPay verification code is ${otp}. It expires in 10 minutes.`,
