@@ -51,6 +51,15 @@ Build a developer-first SaaS for M-Pesa payments (C2B, B2C, C2C) with a unified 
 
 ---
 
+### Phase 5: Documentation
+- **[NEW] [src/app/docs/page.tsx](file:///home/mwero/saas/mwenaro-pay/src/app/docs/page.tsx)**: Detailed developer documentation covering.
+  - Authentication headers.
+  - Integration examples for Javascript, Typescript, Node.js (Fetch/Axios), and CURL.
+  - Request/Response payloads for STK Push, B2C, C2B, and C2C.
+  - Webhook payload structure.
+
+---
+
 ## Verification Plan
 
 ### Automated Tests
