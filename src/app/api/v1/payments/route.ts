@@ -1,6 +1,8 @@
 import { verifyPublicApiKey } from "@/lib/services/api-auth";
 import { MpesaService } from "@/lib/services/mpesa";
 import { logTransaction } from "@/lib/db/sqlite";
+import dbConnect from "@/lib/db/mongodb";
+import Transaction from "@/models/Transaction";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 
@@ -82,12 +84,25 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Unsupported transaction type" }, { status: 400 });
     }
 
-    // 3. Log transaction in SQLite
+    // 3. Log transaction in SQLite (Backup/Velocity)
     const transactionId = crypto.randomUUID();
     await logTransaction({
       id: transactionId,
       userId: apiKey.userId.toString(),
       apiKeyId: apiKey._id.toString(),
+      type: transactionType,
+      status: "PENDING",
+      amount: parseFloat(body.amount || body.b2cAmount || body.c2cAmount || 0),
+      phoneNumber: body.phoneNumber || body.b2cReceiver || body.senderPhone || "N/A",
+      rawPayload: mpesaResponse as any,
+    });
+
+    // 4. Log transaction to MongoDB (Primary State)
+    await dbConnect();
+    await Transaction.create({
+      transactionId,
+      userId: apiKey.userId,
+      apiKeyId: apiKey._id,
       type: transactionType,
       status: "PENDING",
       amount: parseFloat(body.amount || body.b2cAmount || body.c2cAmount || 0),

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getTransactionLogs } from "@/lib/actions/transactions";
+import { getTransactions } from "@/lib/actions/mongo-transactions";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   Table, 
@@ -22,8 +22,8 @@ export default function LogsPage() {
 
   const fetchLogs = async () => {
     setLoading(true);
-    const data = await getTransactionLogs();
-    setLogs(data.logs);
+    const data = await getTransactions();
+    setLogs(data);
     setLoading(false);
   };
 
@@ -72,7 +72,7 @@ export default function LogsPage() {
                 </TableRow>
               ) : (
                 logs.map((log) => (
-                  <TableRow key={log.id} className="hover:bg-gray-50/50">
+                  <TableRow key={log.transactionId} className="hover:bg-gray-50/50">
                     <TableCell className="text-xs font-mono text-gray-400">
                       {format(new Date(log.createdAt), "MMM d, HH:mm:ss")}
                     </TableCell>
@@ -91,7 +91,7 @@ export default function LogsPage() {
                       <div className="flex flex-col">
                         <span className="text-sm font-medium">{log.phoneNumber || "N/A"}</span>
                         <span className="text-[10px] text-gray-400 tracking-tighter">
-                          {log.id.slice(0, 8)}...
+                          {log.transactionId.slice(0, 8)}...
                         </span>
                       </div>
                     </TableCell>
