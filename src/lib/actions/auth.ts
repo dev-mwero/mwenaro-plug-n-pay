@@ -62,7 +62,7 @@ export async function requestOTP(email: string) {
                       </div>
                     `
                 }),
-                new Promise((_, reject) => setTimeout(() => reject(new Error("Email timeout")), 10000))
+                new Promise((_, reject) => setTimeout(() => reject(new Error("Email timeout")), 30000))
             ]);
             console.log(`[AUTH] OTP sent to ${email}`);
         } catch (mailError) {
