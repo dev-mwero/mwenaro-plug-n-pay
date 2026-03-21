@@ -168,12 +168,13 @@ export async function lipaNaMpesa(payload: StkPayload) {
                 </TabsContent>
               </Tabs>
 
-              <div className="mt-8">
-                <h4 className="font-semibold text-gray-900 mb-4">Response Payload</h4>
-                <Card className="bg-slate-100 border-none shadow-inner">
-                  <CardContent className="p-4">
-                    <pre className="text-xs text-slate-700 font-mono overflow-x-auto">
-                      <code>{`{
+              <div className="mt-8 space-y-6">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-4">Success Response (200 OK)</h4>
+                  <Card className="bg-slate-100 border-none shadow-inner">
+                    <CardContent className="p-4">
+                      <pre className="text-xs text-slate-700 font-mono overflow-x-auto">
+                        <code>{`{
   "success": true,
   "transactionId": "uuid-v4-string",
   "ResponseCode": "0",
@@ -181,9 +182,24 @@ export async function lipaNaMpesa(payload: StkPayload) {
   "CheckoutRequestID": "ws_CO_1234567890",
   "CustomerMessage": "Success. Request accepted for processing."
 }`}</code>
-                    </pre>
-                  </CardContent>
-                </Card>
+                      </pre>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-4">Error Response (400 Bad Request)</h4>
+                  <Card className="bg-red-50 border-red-100 shadow-inner">
+                    <CardContent className="p-4">
+                      <pre className="text-xs text-red-700 font-mono overflow-x-auto">
+                        <code>{`{
+  "error": "Missing required fields for STK Push",
+  "status": 400
+}`}</code>
+                      </pre>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </section>
 
@@ -246,13 +262,14 @@ export async function lipaNaMpesa(payload: StkPayload) {
                 PlugPay will then instantly POST a standardized JSON payload to your configured Webhook URL.
               </p>
 
-              <Card className="bg-slate-950 border-none shadow-xl">
-                <CardHeader className="border-b border-slate-800 bg-slate-900/50">
-                  <CardTitle className="text-sm font-mono text-slate-300">PlugPay Webhook Event (STK Success)</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <pre className="text-sm text-green-400 font-mono overflow-x-auto">
-                    <code>
+              <div className="space-y-6">
+                <Card className="bg-slate-950 border-none shadow-xl">
+                  <CardHeader className="border-b border-slate-800 bg-slate-900/50">
+                    <CardTitle className="text-sm font-mono text-slate-300">1. Successful Payment Event (payment.success)</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <pre className="text-sm text-green-400 font-mono overflow-x-auto">
+                      <code>
 {`POST https://your-domain.com/webhooks/mwenaro
 Content-Type: application/json
 
@@ -268,10 +285,61 @@ Content-Type: application/json
     "timestamp": "2026-03-21T10:30:00Z"
   }
 }`}
-                    </code>
-                  </pre>
-                </CardContent>
-              </Card>
+                      </code>
+                    </pre>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-950 border-none shadow-xl">
+                  <CardHeader className="border-b border-slate-800 bg-slate-900/50">
+                    <CardTitle className="text-sm font-mono text-slate-300">2. Customer Canceled Event (payment.cancelled)</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <pre className="text-sm text-yellow-400 font-mono overflow-x-auto">
+                      <code>
+{`POST https://your-domain.com/webhooks/mwenaro
+Content-Type: application/json
+
+{
+  "event": "payment.cancelled",
+  "data": {
+    "transactionId": "uuid-v4-from-initiation",
+    "type": "STK_PUSH",
+    "status": "FAILED",
+    "errorMessage": "Request cancelled by user",
+    "timestamp": "2026-03-21T10:31:00Z"
+  }
+}`}
+                      </code>
+                    </pre>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-950 border-none shadow-xl">
+                  <CardHeader className="border-b border-slate-800 bg-slate-900/50">
+                    <CardTitle className="text-sm font-mono text-slate-300">3. Generic Failure / Timeout Event (payment.failed)</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <pre className="text-sm text-red-400 font-mono overflow-x-auto">
+                      <code>
+{`POST https://your-domain.com/webhooks/mwenaro
+Content-Type: application/json
+
+{
+  "event": "payment.failed",
+  "data": {
+    "transactionId": "uuid-v4-from-initiation",
+    "type": "STK_PUSH",
+    "status": "FAILED",
+    "errorMessage": "The balance is insufficient for the transaction",
+    "timestamp": "2026-03-21T10:30:45Z"
+  }
+}`}
+                      </code>
+                    </pre>
+                  </CardContent>
+                </Card>
+              </div>
               
               <div className="mt-8 bg-amber-50 border border-amber-200 rounded-lg p-5">
                  <h4 className="font-semibold text-amber-900 mb-2">Security Tip</h4>
