@@ -56,6 +56,20 @@ export async function POST(req: Request) {
         transactionType = "B2C";
         break;
 
+      case "c2c":
+        const { senderPhone, receiverPhone, c2cAmount, c2cRemarks } = body;
+        if (!senderPhone || !receiverPhone || !c2cAmount) {
+          return NextResponse.json({ error: "Missing required fields for C2C" }, { status: 400 });
+        }
+        mpesaResponse = await mpesa.c2cPayment({
+          senderPhone,
+          receiverPhone,
+          amount: c2cAmount,
+          remarks: c2cRemarks || "C2C Transfer",
+        });
+        transactionType = "C2C";
+        break;
+
       case "c2b-register":
         mpesaResponse = await mpesa.c2bRegisterUrl({
           shortCode: body.shortCode,
@@ -76,8 +90,8 @@ export async function POST(req: Request) {
       apiKeyId: apiKey._id.toString(),
       type: transactionType,
       status: "PENDING",
-      amount: parseFloat(body.amount || body.b2cAmount || 0),
-      phoneNumber: body.phoneNumber || body.b2cReceiver || "N/A",
+      amount: parseFloat(body.amount || body.b2cAmount || body.c2cAmount || 0),
+      phoneNumber: body.phoneNumber || body.b2cReceiver || body.senderPhone || "N/A",
       rawPayload: mpesaResponse as any,
     });
 

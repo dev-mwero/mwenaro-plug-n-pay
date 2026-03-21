@@ -4,6 +4,7 @@ export type MpesaTransactionType =
   | "STK_PUSH"
   | "B2C"
   | "C2B"
+  | "C2C"
   | "TRANSACTION_STATUS"
   | "ACCOUNT_BALANCE"
   | "REVERSAL";
@@ -170,6 +171,20 @@ export class MpesaService {
     // Sandbox simulation is acceptable until that's configured.
     console.log("[MPESA] B2C simulation (initiator cert required for real B2C)");
     return this.simulateInteraction("B2C", params);
+  }
+
+  /**
+   * Initiates a C2C Payment (Customer to Customer)
+   * NOTE: Daraja does not have a native open API for direct C2C transfers.
+   * We simulate this functionality for the Mwenaro PlugPay ecosystem.
+   */
+  async c2cPayment(params: {
+    senderPhone: string;
+    receiverPhone: string;
+    amount: number;
+    remarks: string;
+  }): Promise<MpesaResponse> {
+    return this.simulateInteraction("C2C", params);
   }
 
   /**
