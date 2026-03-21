@@ -88,7 +88,7 @@ export function LoginForm() {
                 disabled={loading}
               />
             </div>
-            <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 transition-all duration-300" disabled={loading}>
+            <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 transition-all duration-300" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Send OTP
             </Button>
@@ -109,7 +109,7 @@ export function LoginForm() {
                 className="text-center text-2xl tracking-[0.5em] font-mono"
               />
             </div>
-            <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 transition-all duration-300" disabled={loading}>
+            <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 transition-all duration-300" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Verify & Login
             </Button>

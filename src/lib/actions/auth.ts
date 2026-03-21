@@ -51,10 +51,10 @@ export async function requestOTP(email: string) {
                     text: `Your Mwenaro PlugPay verification code is ${otp}. It expires in 10 minutes.`,
                     html: `
                       <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; color: #333;">
-                        <h2 style="color: #10b981;">PlugPay Verification</h2>
+                        <h2 style="color: #4f46e5;">PlugPay Verification</h2>
                         <p>Use the code below to sign in to your developer dashboard:</p>
-                        <div style="background: #f0fdf4; padding: 24px; border-radius: 12px; text-align: center; border: 1px solid #dcfce7; margin: 24px 0;">
-                          <span style="font-size: 32px; font-weight: bold; letter-spacing: 0.25em; color: #166534;">${otp}</span>
+                        <div style="background: #e0e7ff; padding: 24px; border-radius: 12px; text-align: center; border: 1px solid #c7d2fe; margin: 24px 0;">
+                          <span style="font-size: 32px; font-weight: bold; letter-spacing: 0.25em; color: #3730a3;">${otp}</span>
                         </div>
                         <p style="font-size: 14px; color: #666;">This code will expire in 10 minutes.</p>
                         <hr style="border: 0; border-top: 1px solid #eee; margin: 24px 0;" />
